@@ -97,13 +97,23 @@ function girar() {
 }
 
 function mostrarResultado() {
-  const anguloFinal = (2 * Math.PI - (anguloInicio % (2 * Math.PI))) % (2 * Math.PI);
-  const sector = Math.floor((anguloFinal / (2 * Math.PI)) * premios.length);
+  const anguloPorSector = (2 * Math.PI) / premios.length;
+
+  // El ángulo donde está el puntero es 270° o 3π/2 radianes (parte superior)
+  const anguloPuntero = 3 * Math.PI / 2;
+
+  // Corregimos el ángulo final ajustado al puntero superior
+  const anguloFinal = (anguloPuntero - (anguloInicio % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+
+  // Detectamos el sector según el ángulo corregido
+  const sector = Math.floor(anguloFinal / anguloPorSector);
   const premio = premios[sector].label;
+
   setTimeout(() => {
     alert("🎯 ¡Ganaste: " + premio + "!");
   }, 300);
 }
+
 
 dibujarRuleta();
 </script>
