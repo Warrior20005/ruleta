@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Ruleta de Colores</title>
+  <style>
+    canvas {
+      background: #fff;
+      display: block;
+      margin: 30px auto;
+    }
+    button {
+      display: block;
+      margin: 10px auto;
+      padding: 10px 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="ruleta" width="400" height="400"></canvas>
+<button onclick="girar()">🎰 Girar Ruleta</button>
+
+<script>
+const canvas = document.getElementById("ruleta");
+const ctx = canvas.getContext("2d");
+const radius = canvas.width / 2;
+
+const premios = [
+  { color: "green", label: "5 coins" },
+  { color: "silver", label: "Nada" },
+  { color: "orange", label: "20 coins" },
+  { color: "red", label: "20 coins" },
+  { color: "blue", label: "30 coins" },
+  { color: "purple", label: "30 coins" },
+];
+
+let anguloInicio = 0;
+let velocidad = 0;
+let girando = false;
+
+function dibujarRuleta() {
+  const anguloPorSector = (2 * Math.PI) / premios.length;
+
+  for (let i = 0; i < premios.length; i++) {
+    const inicio = anguloInicio + i * anguloPorSector;
+    const fin = inicio + anguloPorSector;
+
+    ctx.beginPath();
+    ctx.moveTo(radius, radius);
+    ctx.arc(radius, radius, radius, inicio, fin);
+    ctx.fillStyle = premios[i].color;
+    ctx.fill();
+
+    // Texto
+    ctx.save();
+    ctx.translate(radius, radius);
+    ctx.rotate(inicio + anguloPorSector / 2);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#fff";
+    ctx.font = "16px Arial";
+    ctx.fillText(premios[i].label, radius - 10, 10);
+    ctx.restore();
+  }
+
+  // Puntero
+  ctx.beginPath();
+  ctx.moveTo(radius - 10, 0);
+  ctx.lineTo(radius + 10, 0);
+  ctx.lineTo(radius, 20);
+  ctx.fillStyle = "black";
+  ctx.fill();
+}
+
+function animarRuleta() {
+  if (!girando) return;
+  anguloInicio += velocidad;
+  velocidad *= 0.985;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  dibujarRuleta();
+
+  if (velocidad < 0.002) {
+    girando = false;
+    mostrarResultado();
+  } else {
+    requestAnimationFrame(animarRuleta);
+  }
+}
+
+function girar() {
+  if (girando) return;
+  velocidad = Math.random() * 0.2 + 0.25;
+  girando = true;
+  animarRuleta();
+}
+
+function mostrarResultado() {
+  const anguloFinal = (2 * Math.PI - (anguloInicio % (2 * Math.PI))) % (2 * Math.PI);
+  const sector = Math.floor((anguloFinal / (2 * Math.PI)) * premios.length);
+  const premio = premios[sector].label;
+  setTimeout(() => {
+    alert("🎯 ¡Ganaste: " + premio + "!");
+  }, 300);
+}
+
+dibujarRuleta();
+</script>
+
+</body>
+</html>
